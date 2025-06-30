@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>顔の近さ判定</title>
+  <title>顔の距離判定</title>
   <style>
     body {
       font-size: 24px;
@@ -26,7 +26,7 @@
   <video id="video" autoplay playsinline muted></video>
   <div id="status">初期化中…</div>
 
-  <!-- MediaPipe用のスクリプト -->
+  <!-- MediaPipeライブラリ読み込み -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
@@ -34,6 +34,7 @@
     const video = document.getElementById('video');
     const status = document.getElementById('status');
 
+    // FaceMeshの初期化
     const faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
     });
@@ -45,23 +46,24 @@
       minTrackingConfidence: 0.5
     });
 
+    // 顔検出の結果が返ってきたときの処理
     faceMesh.onResults(results => {
       if (!results.multiFaceLandmarks) return;
 
       const lm = results.multiFaceLandmarks[0];
       const noseZ = lm[1].z;
-      const leftCheek = lm[234];
-      const rightCheek = lm[454];
-      const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
 
-      // 閾値を調整して検出精度を最適化
-      if (noseZ < -0.15 ) {
+      // 距離による状態表示
+      if (noseZ < -0.15) {
         status.textContent = '顔が近すぎます';
+      } else if (noseZ > -0.05) {
+        status.textContent = '顔が遠すぎます';
       } else {
         status.textContent = '通常位置';
       }
     });
 
+    // カメラ起動と処理実行
     const camera = new Camera(video, {
       onFrame: async () => {
         await faceMesh.send({ image: video });

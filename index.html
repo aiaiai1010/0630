@@ -55,7 +55,7 @@
       const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
 
       // 閾値を調整して検出精度を最適化
-      if (noseZ < -0.15 && faceWidth > 0.35) {
+      if (noseZ < -0.15 ) {
         status.textContent = '顔が近すぎます';
       } else {
         status.textContent = '通常位置';

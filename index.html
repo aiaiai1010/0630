@@ -10,7 +10,7 @@
       margin-top: 50px;
     }
     video {
-      transform: scaleX(-1);
+      transform: scaleX(-1); /* 鏡映像 */
       width: 640px;
       height: 480px;
       border: 1px solid #ccc;
@@ -19,7 +19,7 @@
       margin-top: 20px;
       font-weight: bold;
       color: red;
-      
+      white-space: pre-line; /* 改行を反映！ */
     }
   </style>
 </head>
@@ -27,6 +27,7 @@
   <video id="video" autoplay playsinline muted></video>
   <div id="status">初期化中…</div>
 
+  <!-- MediaPipeライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
@@ -54,14 +55,16 @@
       const lm = results.multiFaceLandmarks[0];
       const noseZ = lm[1].z;
 
+      let message = '';
       if (noseZ < -0.15) {
-        status.textContent = '顔が近すぎます';
+        message = '顔が近すぎます';
       } else if (noseZ > -0.1) {
-        status.textContent = '顔が遠すぎます';
+        message = '顔が遠すぎます';
       } else {
-        status.textContent = '通常位置';
+        message = '通常位置';
       }
 
+      status.textContent = `${message}\nZ座標: ${noseZ.toFixed(4)}`;
     });
 
     const camera = new Camera(video, {

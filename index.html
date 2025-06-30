@@ -19,12 +19,14 @@
       margin-top: 20px;
       font-weight: bold;
       color: red;
+      white-space: pre-line;
     }
   </style>
 </head>
 <body>
   <video id="video" autoplay playsinline muted></video>
   <div id="status">初期化中…</div>
+  <div id="distanceStatus">距離：</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -60,6 +62,8 @@
       } else {
         status.textContent = '通常位置';
       }
+
+      status.textContent = `${message}\nZ座標: ${noseZ.toFixed(4)}`;
     });
 
     const camera = new Camera(video, {

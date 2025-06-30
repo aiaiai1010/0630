@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>顎のZ座標から距離を推定</title>
+  <title>MediaPipe Z座標 → 実距離換算</title>
   <style>
     body {
       font-size: 24px;
@@ -20,7 +20,7 @@
   </style>
 </head>
 <body>
-  <h1>MediaPipeで顎までの距離を推定</h1>
+  <h1>MediaPipeで顎までの距離（cm）を推定</h1>
   <video id="video" autoplay playsinline muted></video>
   <canvas id="canvas"></canvas>
   <p id="output">読み取り中...</p>
@@ -52,10 +52,25 @@
 
       if (results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
-        const chinZ = landmarks[152].z;
 
-        // 小数点5桁で表示（相対距離）
-        output.textContent = `顎のZ座標（相対距離）: ${chinZ.toFixed(5)}`;
+        const leftEye = landmarks[33];
+        const rightEye = landmarks[263];
+        const chin = landmarks[152];
+
+        // 目と目の距離（画像座標上）
+        const eyeDist =
+          Math.sqrt(Math.pow(leftEye.x - rightEye.x, 2) + Math.pow(leftEye.y - rightEye.y, 2));
+
+        // 仮定：目と目の実際の距離 = 6.5 cm
+        const scalePerUnit = 6.5 / eyeDist; // → 1.0 = 6.5cm / eyeDist単位
+
+        // 顎のZ座標（MediaPipeは負値）
+        const chinZ = chin.z;
+
+        // 顎までの距離をcmに換算（絶対値を取る）
+        const chinZcm = Math.abs(chinZ) * scalePerUnit;
+
+        output.textContent = `顎のZ座標: ${chinZ.toFixed(5)} → 推定距離: ${chinZcm.toFixed(2)} cm`;
       } else {
         output.textContent = "顔が検出されていません";
       }

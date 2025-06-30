@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MediaPipe Z座標取得</title>
+  <title>顎のZ座標から距離を推定</title>
   <style>
     body {
       font-size: 24px;
@@ -11,14 +11,19 @@
       width: 640px;
       height: 480px;
       transform: scaleX(-1);
+      border: 1px solid #ccc;
+    }
+    #output {
+      margin-top: 16px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>鼻先と顎のZ座標</h1>
+  <h1>MediaPipeで顎までの距離を推定</h1>
   <video id="video" autoplay playsinline muted></video>
   <canvas id="canvas"></canvas>
-  <p id="zOutput">読み取り中...</p>
+  <p id="output">読み取り中...</p>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -27,7 +32,7 @@
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas');
     const canvasCtx = canvasElement.getContext('2d');
-    const zOutput = document.getElementById('zOutput');
+    const output = document.getElementById('output');
 
     const faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
@@ -47,10 +52,12 @@
 
       if (results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
-        const noseTipZ = landmarks[1].z.toFixed(5);  // 鼻先
-        const chinZ = landmarks[152].z.toFixed(5);   // 顎
+        const chinZ = landmarks[152].z;
 
-        zOutput.textContent = `鼻先のZ座標: ${noseTipZ}、顎のZ座標: ${chinZ}`;
+        // 小数点5桁で表示（相対距離）
+        output.textContent = `顎のZ座標（相対距離）: ${chinZ.toFixed(5)}`;
+      } else {
+        output.textContent = "顔が検出されていません";
       }
 
       canvasCtx.restore();
